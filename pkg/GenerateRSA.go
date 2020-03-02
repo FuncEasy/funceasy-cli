@@ -8,6 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"time"
 )
+
 func GenerateRSAKeys(bits int) (privateKeyPemBlock *pem.Block, publicKeyPemBlock *pem.Block, error error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
@@ -15,15 +16,15 @@ func GenerateRSAKeys(bits int) (privateKeyPemBlock *pem.Block, publicKeyPemBlock
 	}
 	privateBytes := x509.MarshalPKCS1PrivateKey(privateKey)
 	privateBlock := &pem.Block{
-		Type:    "RSA PRIVATE KEY",
-		Bytes:   privateBytes,
+		Type:  "RSA PRIVATE KEY",
+		Bytes: privateBytes,
 	}
 
 	publicKey := &privateKey.PublicKey
 	publicBytes, err := x509.MarshalPKIXPublicKey(publicKey)
 	publicBlock := &pem.Block{
-		Type:    "PUBLIC KEY",
-		Bytes:   publicBytes,
+		Type:  "PUBLIC KEY",
+		Bytes: publicBytes,
 	}
 	if err != nil {
 		return nil, nil, err
@@ -33,10 +34,10 @@ func GenerateRSAKeys(bits int) (privateKeyPemBlock *pem.Block, publicKeyPemBlock
 
 func SignedToken(tokenName string, privateKeyPem []byte) (string, error) {
 	tokenClaims := jwt.StandardClaims{
-		Id:        tokenName,
-		IssuedAt:  time.Now().Unix(),
-		Issuer:    "FUNCEASY_ACCESS_SIGNER.funceasy.com",
-		Subject:   tokenName,
+		Id:       tokenName,
+		IssuedAt: time.Now().Unix(),
+		Issuer:   "FUNCEASY_ACCESS_SIGNER.funceasy.com",
+		Subject:  tokenName,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, tokenClaims)
 	signKey, err := jwt.ParseRSAPrivateKeyFromPEM(privateKeyPem)

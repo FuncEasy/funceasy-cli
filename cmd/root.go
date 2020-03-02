@@ -17,11 +17,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
-	"os"
 	"github.com/funceasy/funceasy-cli/cmd/generate"
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/funceasy/funceasy-cli/cmd/install"
+	"github.com/mitchellh/go-homedir"
+	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"os"
 )
 
 var cfgFile string
@@ -30,7 +31,7 @@ var cfgFile string
 var rootCmd = &cobra.Command{
 	Use:   "funceasy-cli",
 	Short: "A CLI Tools For FuncEasy",
-	Long: `A CLI Tools For FuncEasy`,
+	Long:  `A CLI Tools For FuncEasy`,
 	Run: func(cmd *cobra.Command, args []string) {
 		_ = cmd.Help()
 	},
@@ -39,7 +40,7 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	rootCmd.AddCommand(generate.GenerateCmd)
+	rootCmd.AddCommand(generate.Command, install.Command)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

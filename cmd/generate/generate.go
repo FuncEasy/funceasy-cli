@@ -20,7 +20,7 @@ import (
 )
 
 // generateCmd represents the generate command
-var GenerateCmd = &cobra.Command{
+var Command = &cobra.Command{
 	Use:   "generate",
 	Short: "generate keys for service access",
 	Long: `generate command allows user to generate public and 
@@ -31,5 +31,5 @@ private key for API service access when deploying FuncEasy`,
 }
 
 func init() {
-	GenerateCmd.AddCommand(tokenCmd)
+	Command.AddCommand(tokenCmd)
 }
