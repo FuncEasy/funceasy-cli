@@ -19,6 +19,10 @@ import (
 	"fmt"
 	"github.com/funceasy/funceasy-cli/cmd/generate"
 	"github.com/funceasy/funceasy-cli/cmd/install"
+	"github.com/funceasy/funceasy-cli/cmd/restart"
+	"github.com/funceasy/funceasy-cli/cmd/status"
+	"github.com/funceasy/funceasy-cli/cmd/update"
+	"github.com/funceasy/funceasy-cli/cmd/version"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -40,7 +44,13 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	rootCmd.AddCommand(generate.Command, install.Command)
+	rootCmd.AddCommand(
+		generate.Command,
+		install.Command,
+		version.Command,
+		update.Command,
+		status.Command,
+		restart.Command)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
