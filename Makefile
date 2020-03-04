@@ -8,4 +8,4 @@ build-linux:
 	go build -o ./build/linux/bundles/funceasy-cli -v -ldflags "-s -w" ./main.go
 	zip -rj ./build/funceasy-cli-linux-amd64.zip ./build/linux/bundles
 clean:
-	rm -rf ./build/bin
+	rm -rf ./build/*

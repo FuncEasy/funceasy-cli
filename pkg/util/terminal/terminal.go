@@ -5,6 +5,7 @@ import (
 	"github.com/fatih/color"
 	"os"
 	"time"
+	"unicode/utf8"
 )
 
 type Spinner struct {
@@ -33,6 +34,7 @@ type Terminal struct {
 	Green func(format string, a ...interface{}) string
 	Spinning func(format string, a ...interface{}) string
 	Spinner *Spinner
+	lastOneLineLen int
 }
 
 func NewTerminalPrint() *Terminal {
@@ -45,9 +47,11 @@ func NewTerminalPrint() *Terminal {
 	}
 }
 
-func PrintOneLine(content string)  {
-	fmt.Printf("\r")
-	fmt.Printf("\033[K")
+func (t *Terminal) PrintOneLine(content string)  {
+	for i := 0; i < t.lastOneLineLen; i++ {
+		fmt.Print("\b")
+	}
+	fmt.Print("\033[J")
 	fmt.Print(content)
 }
 
@@ -60,7 +64,7 @@ func (t *Terminal) errorString(content string) string {
 }
 
 func (t *Terminal) warnString(content string) string  {
-	return t.Yellow("！%s", content)
+	return t.Yellow("! %s", content)
 }
 
 func (t *Terminal) spinningString(index int, content string) string  {
@@ -72,30 +76,37 @@ func (t *Terminal) infoString (content string) string {
 }
 
 func (t *Terminal) PrintSuccessOneLine (format string, a ...interface{}) {
-	PrintOneLine(t.successString(fmt.Sprintf(format, a...)))
+	str := fmt.Sprintf(format, a...)
+	t.PrintOneLine(t.successString(str))
+	t.lastOneLineLen = utf8.RuneCountInString(str) + 2
 }
 
 func (t *Terminal) PrintWarnOneLine(format string, a ...interface{}) {
-	PrintOneLine(t.warnString(fmt.Sprintf(format, a...)))
+	str := fmt.Sprintf(format, a...)
+	t.PrintOneLine(t.warnString(str))
+	t.lastOneLineLen = utf8.RuneCountInString(str) + 2
 }
 
 func (t *Terminal) PrintInfoOneLine(format string, a ...interface{}) {
-	PrintOneLine(t.infoString(fmt.Sprintf(format, a...)))
+	str := fmt.Sprintf(format, a...)
+	t.PrintOneLine(t.infoString(str))
+	t.lastOneLineLen = utf8.RuneCountInString(str) + 2
 }
 
 func (t *Terminal) PrintErrorOneLineWithPanic (a ...interface{})  {
-	PrintOneLine(t.errorString(fmt.Sprint(a...)))
+	t.PrintOneLine(t.errorString(fmt.Sprint(a...)))
 	t.LineEnd()
 	panic(a)
 }
 
 func (t *Terminal) PrintErrorOneLine (a ...interface{})  {
-	PrintOneLine(t.errorString(fmt.Sprint(a...)))
+	t.PrintOneLine(t.errorString(fmt.Sprint(a...)))
+	t.lastOneLineLen = 0
 	t.LineEnd()
 }
 
 func (t *Terminal) PrintErrorOneLineWithExit (a ...interface{})  {
-	PrintOneLine(t.errorString(fmt.Sprint(a...)))
+	t.PrintOneLine(t.errorString(fmt.Sprint(a...)))
 	t.LineEnd()
 	os.Exit(1)
 }
@@ -108,7 +119,9 @@ func (t *Terminal) PrintLoadingOneLine (done chan bool, format string, a ...inte
 			case <-done:
 				return
 			case <-time.After(t.Spinner.Interval):
-				PrintOneLine(t.spinningString(index, fmt.Sprintf(format, a...)))
+				str := fmt.Sprintf(format, a...)
+				t.PrintOneLine(t.spinningString(index, str))
+				t.lastOneLineLen = utf8.RuneCountInString(str) + 2
 				index = (index + 1) % len(t.Spinner.Frames)
 			}
 		}
