@@ -19,6 +19,8 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
+	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 	"time"
@@ -162,9 +164,21 @@ func DeployFuncEasyResources(fileByte []byte, PVType string, pathOrClass string)
 		case *coreV1.PersistentVolumeClaim:
 			pvc := item.(*coreV1.PersistentVolumeClaim)
 			if PVType == "Local" {
+				dirName := "funceasy-" + pvc.Name + "-volume"
+				dirPath := path.Join(pathOrClass, dirName)
+				if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+					err = os.Mkdir(dirPath, os.ModePerm)
+					if err != nil {
+						t.PrintErrorOneLineWithPanic(err)
+					}
+					err = os.Chmod(dirPath, os.ModePerm)
+					if err != nil {
+						t.PrintErrorOneLineWithPanic(err)
+					}
+				}
 				pv := &coreV1.PersistentVolume{
 					ObjectMeta: metaV1.ObjectMeta{
-						Name: "funceasy-mysql-pv-volume",
+						Name: dirName,
 					},
 					Spec:       coreV1.PersistentVolumeSpec{
 						PersistentVolumeReclaimPolicy: coreV1.PersistentVolumeReclaimRecycle,
@@ -174,7 +188,7 @@ func DeployFuncEasyResources(fileByte []byte, PVType string, pathOrClass string)
 						},
 						PersistentVolumeSource: coreV1.PersistentVolumeSource{
 							HostPath:             &coreV1.HostPathVolumeSource{
-								Path: pathOrClass,
+								Path: dirPath,
 							},
 						},
 					},
